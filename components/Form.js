@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
-import { Text, TextInput, View, TouchableWithoutFeedback, StyleSheet, Animated } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Text, TextInput, View, TouchableWithoutFeedback, StyleSheet, Animated, Alert } from 'react-native';
 import { Picker } from '@react-native-community/picker'
 
 
-const Form = () => {
+const Form = ({ search, setSearch, setConsultAPI }) => {
+
+    const { city, country } = search;
+
     const [buttonAnimation] = useState(new Animated.Value(1));
+
+
     const animationIn = () => {
         Animated.spring(buttonAnimation, { toValue: .8, useNativeDriver: true }).start();
     }
@@ -15,13 +20,24 @@ const Form = () => {
     const animationStyle = {
         transform: [{ scale: buttonAnimation }]
     }
+
+    const validateForm = () => {
+        if (city.trim() === '' || country.trim() === '') {
+            Alert.alert('Error', 'All the fields are required.', [{
+                text: 'Ok'
+            }]);
+            return;
+        }
+        setConsultAPI(true)
+    }
+
     return (
         <View style={styles.container}>
             <View style={styles.cityForm}>
-                <TextInput style={styles.cityFormText} placeholder='City' placeholderTextColor='#666' />
+                <TextInput value={city} onChangeText={city => setSearch({ ...search, city })} style={styles.cityFormText} placeholder='City' placeholderTextColor='#666' />
             </View>
             <View style={styles.pickerContainer}>
-                <Picker itemStyle={{ textAlign: 'center' }}>
+                <Picker onValueChange={country => setSearch({ ...search, country })} selectedValue={country} itemStyle={{ textAlign: 'center' }}>
                     <Picker.Item label='-- Select --' value='' />
                     <Picker.Item label='Estados Unidos' value='US' />
                     <Picker.Item label='Argentina' value='AR' />
@@ -31,6 +47,7 @@ const Form = () => {
                 </Picker>
             </View>
             <TouchableWithoutFeedback
+                onPress={() => validateForm()}
                 onPressIn={() => animationIn()}
                 onPressOut={() => animationOut()}
             >
